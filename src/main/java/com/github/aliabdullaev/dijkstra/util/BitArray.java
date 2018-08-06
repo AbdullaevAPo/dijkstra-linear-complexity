@@ -1,8 +1,11 @@
-package dijkstra;
+package com.github.aliabdullaev.dijkstra.util;
 
+import com.github.aliabdullaev.dijkstra.util.performance.PerformanceUtils;
 import lombok.Data;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * TODO LIST научить его работать с диапозоном от min до max
@@ -32,6 +35,11 @@ public @Data class BitArray {
         relocate();
         this.setCnt = copy.setCnt;
         copyBytes(copy.bytes);
+    }
+
+    public BitArray(Collection<Integer> numbers) {
+        this(Collections.max(numbers));
+        numbers.forEach(this::set);
     }
 
     public BitArray() {
@@ -84,6 +92,9 @@ public @Data class BitArray {
         }
         return res;
     }
+
+
+
 
     public int getFirstNotNull(int firstPos, int lastPos) {
         int res = -1;

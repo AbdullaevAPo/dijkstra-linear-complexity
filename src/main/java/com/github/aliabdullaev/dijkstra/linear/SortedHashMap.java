@@ -1,22 +1,24 @@
-package dijkstra;
+package com.github.aliabdullaev.dijkstra.linear;
 
-import com.exploretheworld.util.BitArray;
-import com.exploretheworld.util.PerformanceUtils;
+import com.github.aliabdullaev.dijkstra.linear.LinearDijkstraAlgoArray;
+import com.github.aliabdullaev.dijkstra.util.performance.PerformanceUtils;
+import com.github.aliabdullaev.dijkstra.util.BitArray;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
 
-import static com.exploretheworld.pathstorage.dijkstra.DijkstraSearchEntryArray.*;
+import static com.github.aliabdullaev.dijkstra.linear.LinearDijkstraAlgoArray.*;
+
 
 @Data
-class NewSortedHashMapEntry {
+class SortedHashMapEntry {
     private int cnt = 0;
     private int[] nodeIdVector = new int[10];
     private int bucketId;
     private boolean sorted = false;
 
-    public NewSortedHashMapEntry(int bucketId) {
+    public SortedHashMapEntry(int bucketId) {
         this.bucketId = bucketId;
     }
 
@@ -55,13 +57,12 @@ class NewSortedHashMapEntry {
     }
 }
 
-
 @Slf4j
 @Data
-public class NewSortedHashMap {
+public class SortedHashMap {
     public static int initSize = 4000;
-    private NewSortedHashMapEntry[] arr;
-    private int[] dataArr;
+    private SortedHashMapEntry[] arr;
+    private LinearDijkstraAlgoArray dataArr;
     private int minEl = 0;
     private int maxEl = 0;
     private int maxId = 400;
@@ -69,24 +70,28 @@ public class NewSortedHashMap {
     private BitArray idMap;
     public static final int BUCKET_SIZE = 20;
 
-    public NewSortedHashMap(int firstId, int firstEl, DijkstraSearchEntryArray dijkstraSearchArrays) {
+    public SortedHashMap(int firstId, int firstEl, LinearDijkstraAlgoArray dijkstraSearchArrays) {
         this(dijkstraSearchArrays);
+        init(firstId, firstEl);
+    }
+
+    private void initArray() {
+        arr = new SortedHashMapEntry[initSize];
+        for (int i=0; i< initSize; i++)
+            arr[i] = new SortedHashMapEntry(i);
+    }
+
+    public SortedHashMap(LinearDijkstraAlgoArray dijkstraSearchArrays) {
+        initArray();
+        this.dataArr = dijkstraSearchArrays;
+        this.idMap = new BitArray(dijkstraSearchArrays.size());
+    }
+
+    public void init(int firstId, int firstEl) {
         minEl = firstEl/ BUCKET_SIZE;
         maxEl = firstEl/ BUCKET_SIZE;
         resize();
         insert(firstId, firstEl);
-    }
-
-    private void initArray() {
-        arr = new NewSortedHashMapEntry[initSize];
-        for (int i=0; i< initSize; i++)
-            arr[i] = new NewSortedHashMapEntry(i);
-    }
-
-    public NewSortedHashMap(DijkstraSearchEntryArray dijkstraSearchArrays) {
-        initArray();
-        this.dataArr = dijkstraSearchArrays.getDataArr();
-        this.idMap = new BitArray(dijkstraSearchArrays.size());
     }
 
     // update - id узла, новая длина до узла в секундах
@@ -97,8 +102,8 @@ public class NewSortedHashMap {
         _size++;
         resize();
         int posInBucket = arr[bucketNum].insertNodeId(id, newLen);
-        setBucketNum(dataArr, id, bucketNum);
-        setPosInBucket(dataArr, id, posInBucket);
+        dataArr.setBucketNum(id, bucketNum);
+        dataArr.setPosInBucket(id, posInBucket);
         idMap.set(id);
     }
 
@@ -118,10 +123,10 @@ public class NewSortedHashMap {
         if (idMap.get(id) == 0) {
             return;
         }
-        int bucketNum = getBucketNum(dataArr, id);
-        int movedNodeId = arr[bucketNum].eraseNodeId(getPosInBucket(dataArr, id));
+        int bucketNum = dataArr.getBucketNum(id);
+        int movedNodeId = arr[bucketNum].eraseNodeId(dataArr.getPosInBucket(id));
         if (movedNodeId != -1) {
-            setPosInBucket(dataArr, movedNodeId, getPosInBucket(dataArr, id));
+            dataArr.setPosInBucket(movedNodeId, dataArr.getPosInBucket(id));
         }
 
         // итерация пока не найдем позицию нового минимального элемента
@@ -135,12 +140,13 @@ public class NewSortedHashMap {
         }
     }
 
+
     private void resize() {
         int len = arr.length;
         if (len < maxEl + 1000) {
             arr = Arrays.copyOf(arr, maxEl + 1000);
             for (int i = len; i < arr.length; i++)
-                arr[i] = new NewSortedHashMapEntry(i);
+                arr[i] = new SortedHashMapEntry(i);
         }
     }
 
