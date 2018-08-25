@@ -5,10 +5,14 @@ import com.github.aliabdullaev.dijkstra.geometry.GraphEdge;
 import com.github.aliabdullaev.dijkstra.geometry.GraphNode;
 import com.github.aliabdullaev.dijkstra.util.performance.MathUtils;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 
 import java.nio.ByteBuffer;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.github.aliabdullaev.dijkstra.util.performance.PerformanceUtils.round;
 
 @Slf4j
 public class GraphStorage {
@@ -74,5 +78,28 @@ public class GraphStorage {
         double latKm = 1/(g1.lat - g2.lat);
         double lonKm = 1/(g2.lon - g1.lon);
         return (float) MathUtils.sqrt(latKm * latKm + lonKm * lonKm) * 1E6f;
+    }
+
+    public int findOptimumBucketSize() {
+        SortedMap<Integer, Long> hist = getEdgeLenHist();
+        // get initial point of optimization
+        double defaultPercentile = 0.1;
+        long totalEdgeCnt = hist.values().stream().mapToLong(i -> i).sum();
+        long curCnt = 0;
+        for (Map.Entry<Integer, Long> entry: hist.entrySet()) {
+            int edgeLen = entry.getKey();
+            long cntWithEdgeLen = entry.getValue();
+            curCnt += cntWithEdgeLen;
+            if (curCnt < totalEdgeCnt * defaultPercentile) {
+                return edgeLen;
+            }
+        }
+        return hist.lastKey();
+    }
+
+    public SortedMap<Integer, Long> getEdgeLenHist() {
+        return new TreeMap<>(Arrays.stream(nodes).flatMap(i -> i.getOutcomingEdges().values().stream())
+                .map(i -> round(i.getLen()))
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting())));
     }
 }

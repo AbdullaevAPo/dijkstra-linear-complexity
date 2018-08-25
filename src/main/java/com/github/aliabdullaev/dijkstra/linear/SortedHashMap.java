@@ -1,6 +1,7 @@
 package com.github.aliabdullaev.dijkstra.linear;
 
-import com.github.aliabdullaev.dijkstra.linear.LinearDijkstraAlgoArray;
+import com.github.aliabdullaev.dijkstra.binaryheap.IntBinaryHeap;
+import com.github.aliabdullaev.dijkstra.util.IntComparator;
 import com.github.aliabdullaev.dijkstra.util.performance.PerformanceUtils;
 import com.github.aliabdullaev.dijkstra.util.BitArray;
 import lombok.Data;
@@ -8,15 +9,11 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
 
-import static com.github.aliabdullaev.dijkstra.linear.LinearDijkstraAlgoArray.*;
-
-
 @Data
 class SortedHashMapEntry {
-    private int cnt = 0;
-    private int[] nodeIdVector = new int[10];
-    private int bucketId;
-    private boolean sorted = false;
+    protected int cnt = 0;
+    protected int[] nodeIdVector = new int[10];
+    protected int bucketId;
 
     public SortedHashMapEntry(int bucketId) {
         this.bucketId = bucketId;
@@ -26,7 +23,6 @@ class SortedHashMapEntry {
      * return pos in bucket of inserted id
      */
     public int insertNodeId(int nodeId, double len) {
-        sorted = false;
         if (nodeIdVector.length <= cnt) {
             int newLength = (int) (nodeIdVector.length * 1.5) + 1;
             int[] copy = new int[newLength];
@@ -42,7 +38,6 @@ class SortedHashMapEntry {
      * return id of moved element in bucket
      */
     public int eraseNodeId(int pos) {
-        sorted = false;
         cnt--;
         nodeIdVector[pos] = nodeIdVector[cnt];
         nodeIdVector[cnt] = 0;
@@ -69,10 +64,19 @@ public class SortedHashMap {
     private int _size = 0;
     private BitArray idMap;
     public static final int BUCKET_SIZE = 20;
+    private boolean sortFirstBucket = false;
+    private int bucketSize;
 
-    public SortedHashMap(int firstId, int firstEl, LinearDijkstraAlgoArray dijkstraSearchArrays) {
-        this(dijkstraSearchArrays);
-        init(firstId, firstEl);
+    public SortedHashMap(LinearDijkstraAlgoArray dijkstraSearchArrays) {
+        this(dijkstraSearchArrays, false, BUCKET_SIZE);
+    }
+
+    public SortedHashMap(LinearDijkstraAlgoArray dijkstraSearchArrays, boolean sortFirstBucket, int bucketSize) {
+        initArray();
+        this.dataArr = dijkstraSearchArrays;
+        this.idMap = new BitArray(dijkstraSearchArrays.size());
+        this.sortFirstBucket = sortFirstBucket;
+        this.bucketSize = bucketSize;
     }
 
     private void initArray() {
@@ -81,22 +85,19 @@ public class SortedHashMap {
             arr[i] = new SortedHashMapEntry(i);
     }
 
-    public SortedHashMap(LinearDijkstraAlgoArray dijkstraSearchArrays) {
-        initArray();
-        this.dataArr = dijkstraSearchArrays;
-        this.idMap = new BitArray(dijkstraSearchArrays.size());
-    }
-
     public void init(int firstId, int firstEl) {
-        minEl = firstEl/ BUCKET_SIZE;
-        maxEl = firstEl/ BUCKET_SIZE;
+        minEl = firstEl/ bucketSize;
+        maxEl = firstEl/ bucketSize;
         resize();
         insert(firstId, firstEl);
+        if (sortFirstBucket) {
+//            arr[minEl].setNeedSorted(true);
+        }
     }
 
     // update - id узла, новая длина до узла в секундах
     public final void insert(int id, double newLen) {
-        int bucketNum = (int) (newLen / BUCKET_SIZE);
+        int bucketNum = (int) (newLen / bucketSize);
         minEl = PerformanceUtils.getMin(minEl, bucketNum);
         maxEl = PerformanceUtils.getMax(maxEl, bucketNum);
         _size++;
@@ -110,9 +111,12 @@ public class SortedHashMap {
 
     private final void rebalance() {
         int oldMinEl = minEl;
-        for (; minEl<=maxEl && arr[minEl].getCnt() == 0; minEl++);
+        for (; minEl <= maxEl && arr[minEl].getCnt() == 0; minEl++) ;
         freeArraysFromOldAndNewMinEl(oldMinEl, minEl);
-        for (; maxEl>minEl && arr[maxEl].getCnt() == 0; maxEl--);
+        if (sortFirstBucket && oldMinEl != minEl) {
+//            arr[minEl].sNeedSorted(true);
+        }
+        for (; maxEl > minEl && arr[maxEl].getCnt() == 0; maxEl--) ;
     }
 
     public int getMinId() {
@@ -157,4 +161,8 @@ public class SortedHashMap {
             arr[i] = null; // освобождаем память
         }
     }
+
+//    private void transformMinElToBinaryHeap() {
+//        arr[minEl]
+//    }
 }

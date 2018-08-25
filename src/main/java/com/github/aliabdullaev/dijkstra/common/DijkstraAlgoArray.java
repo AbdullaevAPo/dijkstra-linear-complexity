@@ -28,6 +28,10 @@ public class DijkstraAlgoArray {
         return dataArr[nodeId];
     }
 
+    public int compareByLength(int n1, int n2) {
+        return dataArr[n1] - dataArr[n2];
+    }
+
     public void updateNodeInfo(int nodeId, int prevNodeId, int len) {
         setLength(nodeId, len);
     }

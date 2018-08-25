@@ -2,14 +2,12 @@ package com.github.aliabdullaev.dijkstra.util.performance;
 
 public class PerformanceUtils {
 
-
     public static int getMin(int a, int b) {
         int c = a - b;
         int k = (c >> 31) & 0x1;
 //                 return b + k * c;
         return b + c * k;
     }
-
 
     public static int getMax(int a, int b) {
         int c = a - b;
@@ -37,17 +35,19 @@ public class PerformanceUtils {
         return k;
     }
 
-    public static int getMin(int a, int b, int c) {
-        int p1 = a - b;
-        int k1 = (p1 >> 31) & 0x1;
-        int minab = b + k1 * p1;
+    // a < b => 0, else 1
+    public static int getRevertSign(int a, int b) {
+        return 1 - getSign(a, b);
+    }
 
-        int p2 = minab - c;
-        int k2 = (p2 >> 31) & 0x1;
-        return c + k2 * p2;
+    // if 0 => 0, if 1 => Integer.MAX_VALUE
+    public static int explodeSign(int a) {
+        return (~a + 1) & Integer.MAX_VALUE;
     }
 
     public static int round(double x){
         return (int)(x-0.5)+1;
     }
+
+    public static int ceil(double x) { return (int)(x - 1e-5) + 1; }
 }

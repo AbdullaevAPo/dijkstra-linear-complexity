@@ -36,6 +36,7 @@ public class FibonacciHeapDijkstraAlgoQueue extends FibonacciHeap<Integer> imple
     @Override
     public void decreaseNodeLength(int nodeId, int newLen) {
         if (existanceArray.get(nodeId) == 0) {
+            existanceArray.set(nodeId);
             insert(heapNodes[nodeId], newLen);
         } else {
             decreaseKey(heapNodes[nodeId], newLen);

@@ -46,24 +46,25 @@ public class PerformanceTest {
                 linearTime += (System.nanoTime() - startTime) / 1.0E9;
                 log.info("{}", Arrays.stream(graph.nodes).filter(i -> dArr1.getLength(i.getId()) < Integer.MAX_VALUE).count());
 
-//                startTime = System.nanoTime();
-//                val dArr2 = new FibonacciHeapDijkstraAlgo(graph, true).runDijkstra(startNode, targetNodes);
-//                fibonacciTime += (System.nanoTime() - startTime) / 1.0E9;
-//                qualityCheck(dArr1, dArr2);
+                startTime = System.nanoTime();
+                val dArr2 = new FibonacciHeapDijkstraAlgo(graph, true).runDijkstra(startNode, targetNodes);
+                fibonacciTime += (System.nanoTime() - startTime) / 1.0E9;
+                qualityCheck(dArr1, dArr2);
 
                 startTime = System.nanoTime();
                 val dArr3 = new BinaryHeapDijkstraAlgo(graph, true).runDijkstra(startNode, targetNodes);
                 heapTime += (System.nanoTime() - startTime) / 1.0E9;
-                qualityCheck(dArr1, dArr3);
+                qualityCheck(dArr2, dArr3);
             }
             nodeCnt = (int) (nodeCnt * 1.5);
-            log.info("nodeCnt: {}, edgeCnt: {}, linearTime: {}, fibonacciTime: {}", nodeCnt, graph.getTotalEdgeCnt(), String.format("%3f", linearTime), String.format("%3f", fibonacciTime));
+            log.info("nodeCnt: {}, edgeCnt: {}, linearTime: {}, fibonacciTime: {}, binaryHeapTime: {}", nodeCnt, graph.getTotalEdgeCnt(),
+                    String.format("%3f", linearTime), String.format("%3f", fibonacciTime), String.format("%3f", heapTime));
         }
     }
 
     private GraphStorage generateGraph(int nodeCnt, int medianEdgeCnt, int medianEdgeLen) {
         val nodes = IntStream.range(0, nodeCnt).mapToObj(i -> new GraphNode(i, rand.nextLong(), rand.nextFloat(), rand.nextFloat())).toArray(GraphNode[]::new);
-        for (GraphNode node: nodes) {
+        for (GraphNode node : nodes) {
             val edgeCnt = abs(round(rand.nextGaussian() * medianEdgeCnt)) + 1;
             if (edgeCnt == 0) {
                 log.info("");
@@ -82,7 +83,7 @@ public class PerformanceTest {
         log.info("Median edge len: {}", Arrays.stream(nodes).flatMap(i -> i.getOutcomingEdges().values().stream())
                 .mapToDouble(i -> i.getLen())
                 .average().orElse(0.0)
-                );
+        );
         Map<Integer, Long> edgeLenHist = Arrays.stream(nodes).flatMap(i -> i.getOutcomingEdges().values().stream())
                 .map(i -> round(i.getLen()))
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));

@@ -71,9 +71,6 @@ public abstract class DijkstraAlgo {
             setCnt++;
         }
         if (verbose) {
-            if (setCnt == 1){
-                log.info("");
-            }
             log.info("Dijkstra call stat: {} {} {}", System.nanoTime() - start, setCnt, totalEdgeCnt);
         }
         return dArr;

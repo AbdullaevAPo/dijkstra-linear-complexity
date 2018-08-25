@@ -1,20 +1,35 @@
 package com.github.aliabdullaev.dijkstra.binaryheap;
 
+import com.github.aliabdullaev.dijkstra.util.IntComparator;
 import com.github.aliabdullaev.dijkstra.util.performance.PerformanceUtils;
 import lombok.Data;
+
+import java.util.Comparator;
 
 import static com.github.aliabdullaev.dijkstra.util.performance.PerformanceUtils.getMin;
 
 public class IntBinaryHeap {
     protected int[] data;
     int size = 0;
-    int era = 0;
+    IntComparator comparator;
+    private static final int DEFAULT_SIZE = 100;
 
-    public IntBinaryHeap(int capacity) {
+    public IntBinaryHeap(Comparator<Integer> comparator) {
+        this(DEFAULT_SIZE, comparator::compare);
+    }
+
+    public IntBinaryHeap(int capacity, IntComparator comparator) {
         data = new int[capacity];
         for (int i=0; i<data.length; i++) {
             data[i] = Integer.MAX_VALUE;
         }
+        this.comparator = comparator;
+    }
+
+    protected IntBinaryHeap(int[] data, int size, IntComparator comparator) {
+        this.data = data;
+        this.comparator = comparator;
+        this.size = size;
     }
 
     public int insert(int value) {
@@ -36,7 +51,7 @@ public class IntBinaryHeap {
 
         // TASK: check halt condition, if parent is less than children
         // or current is the root, we need to do nothing
-        while (data[index] < data[parentIndex]) {
+        while (comparator.compare(data[index], data[parentIndex]) < 0) {
             // TASK: Swap children and parent
             int parentValue = this.data[parentIndex];
             this.data[parentIndex] = this.data[index];
@@ -67,10 +82,10 @@ public class IntBinaryHeap {
             int leftChildIndex = getMin(size, index * 2 + 1);
             int rightChildIndex = getMin(size, index * 2 + 2);
             int minChildIndex = leftChildIndex;
-            if (rightChildIndex < size && data[rightChildIndex] < data[leftChildIndex]) {
+            if (rightChildIndex < size && comparator.compare(data[rightChildIndex], data[leftChildIndex]) < 0) {
                 minChildIndex = rightChildIndex;
             }
-            if (data[index] < data[minChildIndex]) {
+            if (comparator.compare(data[index], data[minChildIndex]) < 0) {
                 break;
             }
             int childValue = this.data[minChildIndex];

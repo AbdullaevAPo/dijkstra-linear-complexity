@@ -5,13 +5,14 @@ import lombok.val;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Comparator;
 import java.util.PriorityQueue;
 import java.util.Random;
 
 public class HeapTest {
     @Test
     public void checkHeapWork() {
-        IntBinaryHeap heap = new IntBinaryHeap(10);
+        IntBinaryHeap heap = new IntBinaryHeap(Integer::compareTo);
         heap.insert(10);
         heap.insert(20);
         heap.insert(5);
@@ -27,9 +28,9 @@ public class HeapTest {
 
     @Test
     public void checkHeapWorkForHugeCount() {
-        IntBinaryHeap heap = new IntBinaryHeap(1);
+        IntBinaryHeap heap = new IntBinaryHeap(Integer::compareTo);
         PriorityQueue<Integer> queue = new PriorityQueue<>();
-        int[] randomElements = new int[100000];
+        int[] randomElements = new int[10000];
         val rand = new Random();
         for (int i = 0; i < randomElements.length; i++) {
             randomElements[i] = rand.nextInt(100);

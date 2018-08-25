@@ -15,7 +15,7 @@ public class BinaryHeapDijkstraAlgoQueue extends IntBinaryHeap implements Dijkst
     private int[] posOfNodesInHeap;
 
     public BinaryHeapDijkstraAlgoQueue(DijkstraAlgoArray dArr) {
-        super(dArr.size());
+        super(dArr.size(), dArr::compareByLength);
         existanceArray = new BitArray(dArr.size());
         posOfNodesInHeap = new int[dArr.size()];
     }
@@ -33,10 +33,8 @@ public class BinaryHeapDijkstraAlgoQueue extends IntBinaryHeap implements Dijkst
     public void decreaseNodeLength(int nodeId, int newLen) {
         if (existanceArray.get(nodeId) == 0) {
             existanceArray.set(nodeId);
-            posOfNodesInHeap[nodeId] = insert(newLen);
-            existanceArray.set(nodeId);
+            posOfNodesInHeap[nodeId] = insert(nodeId);
         } else {
-            data[posOfNodesInHeap[nodeId]] = newLen;
             posOfNodesInHeap[nodeId] = sinkDown(posOfNodesInHeap[nodeId]);
         }
     }
