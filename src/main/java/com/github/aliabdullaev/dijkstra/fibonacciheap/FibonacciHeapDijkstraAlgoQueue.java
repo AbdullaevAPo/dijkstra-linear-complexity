@@ -31,8 +31,6 @@ public class FibonacciHeapDijkstraAlgoQueue extends FibonacciHeap<Integer> imple
         existanceArray.set(nodeId);
     }
 
-    int minId;
-
     @Override
     public void decreaseNodeLength(int nodeId, int newLen) {
         if (existanceArray.get(nodeId) == 0) {
@@ -49,13 +47,9 @@ public class FibonacciHeapDijkstraAlgoQueue extends FibonacciHeap<Integer> imple
     }
 
     @Override
-    public int getMinId() {
-        minId = super.removeMin().getData();
+    public int getAndRemoveMinId() {
+        int minId = super.removeMin().getData();
         existanceArray.reset(minId);
         return minId;
-    }
-
-    @Override
-    public void eraseMin() {
     }
 }

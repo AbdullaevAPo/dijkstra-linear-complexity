@@ -2,8 +2,10 @@ package com.github.aliabdullaev.dijkstra.geometry;
 
 import lombok.Data;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public @Data class GraphNode extends GeoPoint {
 
@@ -27,6 +29,14 @@ public @Data class GraphNode extends GeoPoint {
 
     public GeoPoint buildGeoPoint() {
         return new GeoPoint(lat, lon);
+    }
+
+    public void setIncomingEdges(Collection<GraphEdge> edges) {
+        incomingEdges = edges.stream().collect(Collectors.toMap(i -> i.getStartNode().getOrigId(), i -> i));
+    }
+
+    public void setOutcomingEdges(Collection<GraphEdge> edges) {
+        outcomingEdges = edges.stream().collect(Collectors.toMap(i -> i.getEndNode().getOrigId(), i -> i));
     }
 
     @Override

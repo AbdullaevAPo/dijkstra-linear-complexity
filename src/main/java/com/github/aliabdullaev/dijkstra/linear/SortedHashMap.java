@@ -1,7 +1,5 @@
 package com.github.aliabdullaev.dijkstra.linear;
 
-import com.github.aliabdullaev.dijkstra.binaryheap.IntBinaryHeap;
-import com.github.aliabdullaev.dijkstra.util.IntComparator;
 import com.github.aliabdullaev.dijkstra.util.performance.PerformanceUtils;
 import com.github.aliabdullaev.dijkstra.util.BitArray;
 import lombok.Data;
@@ -9,13 +7,21 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
 
+import static com.github.aliabdullaev.dijkstra.util.performance.PerformanceUtils.ceil;
+
+interface SortedHashMapEntry {
+    void makeSorted();
+
+    int eraseNodeId(int pos);
+}
+
 @Data
-class SortedHashMapEntry {
+class DefaultSortedHashMapEntry {
     protected int cnt = 0;
     protected int[] nodeIdVector = new int[10];
     protected int bucketId;
 
-    public SortedHashMapEntry(int bucketId) {
+    public DefaultSortedHashMapEntry(int bucketId) {
         this.bucketId = bucketId;
     }
 
@@ -52,18 +58,21 @@ class SortedHashMapEntry {
     }
 }
 
+class BinaryHeapSortedHashMapEntry {
+
+}
+
 @Slf4j
 @Data
 public class SortedHashMap {
     public static int initSize = 4000;
-    private SortedHashMapEntry[] arr;
+    private DefaultSortedHashMapEntry[] arr;
     private LinearDijkstraAlgoArray dataArr;
     private int minEl = 0;
     private int maxEl = 0;
-    private int maxId = 400;
     private int _size = 0;
     private BitArray idMap;
-    public static final int BUCKET_SIZE = 20;
+    public static final int BUCKET_SIZE = 60;
     private boolean sortFirstBucket = false;
     private int bucketSize;
 
@@ -80,9 +89,9 @@ public class SortedHashMap {
     }
 
     private void initArray() {
-        arr = new SortedHashMapEntry[initSize];
+        arr = new DefaultSortedHashMapEntry[initSize];
         for (int i=0; i< initSize; i++)
-            arr[i] = new SortedHashMapEntry(i);
+            arr[i] = new DefaultSortedHashMapEntry(i);
     }
 
     public void init(int firstId, int firstEl) {
@@ -113,9 +122,9 @@ public class SortedHashMap {
         int oldMinEl = minEl;
         for (; minEl <= maxEl && arr[minEl].getCnt() == 0; minEl++) ;
         freeArraysFromOldAndNewMinEl(oldMinEl, minEl);
-        if (sortFirstBucket && oldMinEl != minEl) {
+//        if (sortFirstBucket && oldMinEl != minEl) {
 //            arr[minEl].sNeedSorted(true);
-        }
+//        }
         for (; maxEl > minEl && arr[maxEl].getCnt() == 0; maxEl--) ;
     }
 
@@ -127,6 +136,10 @@ public class SortedHashMap {
         if (idMap.get(id) == 0) {
             return;
         }
+        eraseInternal(id);
+    }
+
+    protected void eraseInternal(int id) {
         int bucketNum = dataArr.getBucketNum(id);
         int movedNodeId = arr[bucketNum].eraseNodeId(dataArr.getPosInBucket(id));
         if (movedNodeId != -1) {
@@ -148,9 +161,9 @@ public class SortedHashMap {
     private void resize() {
         int len = arr.length;
         if (len < maxEl + 1000) {
-            arr = Arrays.copyOf(arr, maxEl + 1000);
+            arr = Arrays.copyOf(arr, ceil(maxEl * 1.5) + 1000);
             for (int i = len; i < arr.length; i++)
-                arr[i] = new SortedHashMapEntry(i);
+                arr[i] = new DefaultSortedHashMapEntry(i);
         }
     }
 

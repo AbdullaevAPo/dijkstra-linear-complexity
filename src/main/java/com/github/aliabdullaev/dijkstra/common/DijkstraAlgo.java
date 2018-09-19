@@ -50,7 +50,7 @@ public abstract class DijkstraAlgo {
         val start = System.nanoTime();
         float totalEdgeCnt = 0, setCnt = 0; // statistics
         while (q.size() != 0 && interestedNodes.getSetCnt() != 0) {
-            int from = q.getMinId();
+            int from = q.getAndRemoveMinId();
             interestedNodes.reset(from);
 
             int fromLen = dArr.getLength(from);
@@ -67,7 +67,6 @@ public abstract class DijkstraAlgo {
                     dArr.updateNodeInfo(to, from, newToLen);
                 }
             }
-            q.eraseMin();
             setCnt++;
         }
         if (verbose) {
@@ -85,7 +84,7 @@ public abstract class DijkstraAlgo {
         int[] dataArr = dArr.getDataArr();
         float totalEdgeCnt = 0, setCnt = 0; // statistics
         while (q.size() != 0) {
-            int from = q.getMinId();
+            int from = q.getAndRemoveMinId();
             if (from == goalNode.getId()) {
                 return dArr;
             }
@@ -105,7 +104,6 @@ public abstract class DijkstraAlgo {
                     dArr.updateNodeInfo(to, from, toLen);
                 }
             }
-            q.eraseMin();
             setCnt++;
         }
         log.info("ВЫЗОВ ДЕЙКСТРЫ 2: {} {} {}", System.nanoTime() - start, setCnt, totalEdgeCnt);

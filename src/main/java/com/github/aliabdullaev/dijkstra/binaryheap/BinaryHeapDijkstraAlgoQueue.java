@@ -2,21 +2,15 @@ package com.github.aliabdullaev.dijkstra.binaryheap;
 
 import com.github.aliabdullaev.dijkstra.common.DijkstraAlgoArray;
 import com.github.aliabdullaev.dijkstra.common.DijkstraAlgoQueue;
-import com.github.aliabdullaev.dijkstra.fibonacciheap.FibonacciHeapDijkstraAlgoQueue;
 import com.github.aliabdullaev.dijkstra.util.BitArray;
-import lombok.val;
-import org.jgrapht.util.FibonacciHeap;
-
-import java.util.Comparator;
-import java.util.PriorityQueue;
 
 public class BinaryHeapDijkstraAlgoQueue extends IntBinaryHeap implements DijkstraAlgoQueue {
-    private BitArray existanceArray;
+    private BitArray existenceArray;
     private int[] posOfNodesInHeap;
 
     public BinaryHeapDijkstraAlgoQueue(DijkstraAlgoArray dArr) {
         super(dArr.size(), dArr::compareByLength);
-        existanceArray = new BitArray(dArr.size());
+        existenceArray = new BitArray(dArr.size());
         posOfNodesInHeap = new int[dArr.size()];
     }
 
@@ -31,8 +25,8 @@ public class BinaryHeapDijkstraAlgoQueue extends IntBinaryHeap implements Dijkst
 
     @Override
     public void decreaseNodeLength(int nodeId, int newLen) {
-        if (existanceArray.get(nodeId) == 0) {
-            existanceArray.set(nodeId);
+        if (existenceArray.get(nodeId) == 0) {
+            existenceArray.set(nodeId);
             posOfNodesInHeap[nodeId] = insert(nodeId);
         } else {
             posOfNodesInHeap[nodeId] = sinkDown(posOfNodesInHeap[nodeId]);
@@ -40,13 +34,9 @@ public class BinaryHeapDijkstraAlgoQueue extends IntBinaryHeap implements Dijkst
     }
 
     @Override
-    public int getMinId() {
+    public int getAndRemoveMinId() {
         int minId = remove();
-        existanceArray.reset(minId);
+        existenceArray.reset(minId);
         return minId;
-    }
-
-    @Override
-    public void eraseMin() {
     }
 }

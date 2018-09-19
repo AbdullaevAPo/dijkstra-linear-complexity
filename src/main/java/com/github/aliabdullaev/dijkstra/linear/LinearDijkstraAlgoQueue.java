@@ -27,16 +27,10 @@ public class LinearDijkstraAlgoQueue extends SortedHashMap implements DijkstraAl
         insert(nodeId, newLen);
     }
 
-    int minId;
-
     @Override
-    public int getMinId() {
-        minId = super.getMinId();
+    public int getAndRemoveMinId() {
+        int minId = super.getMinId();
+        eraseInternal(minId);
         return minId;
-    }
-
-    @Override
-    public void eraseMin() {
-        erase(minId);
     }
 }
